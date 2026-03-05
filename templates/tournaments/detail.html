@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="cyber-card p-4 mb-4">
+            <h2 class="neon-text mb-3">{{ tournament.title }}</h2>
+            <div class="mb-4">
+                <span class="badge bg-info me-2">{{ tournament.game }}</span>
+                <span class="text-warning">📅 {{ tournament.date|date:"d E Y, H:i" }}</span>
+            </div>
+
+            {% if tournament.image %}
+                <img src="{{ tournament.image.url }}" class="img-fluid rounded mb-4" style="max-height: 400px; width: 100%; object-fit: cover; border: 1px solid var(--neon-purple);">
+            {% endif %}
+
+            <h5 class="text-light">Описание:</h5>
+            <p class="text-muted" style="white-space: pre-line; word-break: break-word;">{{ tournament.description }}</p>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="cyber-card p-4 text-center sticky-top" style="top: 100px; z-index: 10;">
+            <h4 class="text-white mb-3">СТАТУС</h4>
+            <div class="display-4 fw-bold {% if tournament.is_full %}text-danger{% else %}text-success{% endif %}">
+                {{ tournament.current_participants_count }} / {{ tournament.max_participants }}
+            </div>
+            <p class="text-muted">Занято мест</p>
+            <hr class="border-secondary">
+
+            {% if user.is_authenticated %}
+                {% if is_registered %}
+                    <form action="{% url 'tournament_unregister' tournament.id %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-danger w-100 fw-bold">ОТМЕНИТЬ УЧАСТИЕ</button>
+                    </form>
+
+                {% elif tournament.is_full %}
+                    <button class="btn btn-danger w-100 fw-bold" disabled>⛔ МЕСТ НЕТ</button>
+                {% else %}
+                    <form action="{% url 'tournament_register' tournament.id %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-neon w-100 fw-bold">ПРИНЯТЬ УЧАСТИЕ</button>
+                    </form>
+                {% endif %}
+            {% else %}
+                <a href="{% url 'login' %}" class="btn btn-outline-light w-100">Войдите, чтобы участвовать</a>
+            {% endif %}
+            
+            <div class="mt-4 text-start">
+                <h6 class="text-warning">Список игроков:</h6>
+                <ul class="list-group list-group-flush bg-transparent">
+                    {% for reg in tournament.registrations.all %}
+                        <li class="list-group-item bg-transparent text-light border-secondary px-0">
+                            👤 {{ reg.user.username }} 
+                            <small class="text-muted float-end">{{ reg.user.group_number }}</small>
+                        </li>
+                    {% empty %}
+                        <li class="list-group-item bg-transparent text-muted px-0">Пока никого нет</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

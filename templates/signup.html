@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% block content %}
+
+
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<style>
+    .select2-container--default .select2-selection--single {
+        background-color: #0a0a0a; border: 1px solid #333; height: 38px;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        color: white; line-height: 38px;
+    }
+    .select2-dropdown { background-color: #111; border: 1px solid var(--neon-purple); }
+    .select2-results__option { color: white; }
+    .select2-results__option--highlighted[aria-selected] { background-color: var(--neon-purple); }
+    .select2-search__field { background-color: #222; color: white; border: 1px solid #444 !important; }
+</style>
+
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6 col-lg-5">
+        <div class="cyber-card p-4 p-md-5">
+            <h2 class="text-center neon-text mb-4">РЕГИСТРАЦИЯ</h2>
+            <form method="post" id="signupForm">
+                {% csrf_token %}
+
+                {% for field in form %}
+                <div class="mb-3">
+                    <label class="form-label text-secondary small">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}
+                        <div class="text-danger small mt-1">{{ field.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+
+                <button type="submit" class="btn btn-neon w-100 mt-3">СОЗДАТЬ АККАУНТ</button>
+            </form>
+            <div class="text-center mt-3">
+                <a href="{% url 'login' %}" class="text-decoration-none text-muted small">Уже есть аккаунт? Войти</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        console.log("🚀 Скрипт регистрации запущен!");
+
+        $('input, select').addClass('form-control bg-dark text-white border-secondary');
+
+        const campusSelect = $('select[name="campus"]');
+        const groupSelect = $('select[name="group_number"]');
+
+        try {
+            groupSelect.select2({
+                placeholder: "Сначала выберите корпус...",
+                width: '100%',
+                language: { noResults: () => "Группы не найдены" }
+            });
+        } catch (e) {
+            console.error("⚠️ Select2 не загрузился", e);
+        }
+
+        campusSelect.on('change', function() {
+            const campus = $(this).val();
+            console.log("👉 Выбран корпус:", campus);
+
+            if (!campus) return;
+
+            groupSelect.empty().append(new Option("Загрузка...", "", false, false));
+            try { groupSelect.trigger('change'); } catch(e) {}
+            groupSelect.prop('disabled', true);
+
+            fetch(`/api/get-groups/?campus=${campus}`)
+                .then(response => response.json())
+                .then(data => {
+                    console.log("✅ Группы получены:", data);
+                    groupSelect.empty();
+
+                    if (data.groups && data.groups.length > 0) {
+                        groupSelect.append(new Option("Начните вводить вашу группу...", "", false, false));
+                        data.groups.forEach(group => {
+                            groupSelect.append(new Option(group, group, false, false));
+                        });
+                        groupSelect.prop('disabled', false);
+                    } else {
+                        groupSelect.append(new Option("Группы не найдены", "", false, false));
+                    }
+
+                    try { groupSelect.trigger('change'); } catch(e) {}
+                })
+                .catch(err => {
+                    console.error("❌ Ошибка сервера:", err);
+                    groupSelect.empty().append(new Option("Ошибка сервера", "", false, false));
+                    try { groupSelect.trigger('change'); } catch(e) {}
+                });
+        });
+
+        if (campusSelect.val()) {
+            campusSelect.trigger('change');
+        }
+    });
+</script>
+{% endblock %}

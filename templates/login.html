@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-4">
+        <div class="cyber-card p-4 text-center">
+            <h3 class="neon-text mb-4">ВХОД</h3>
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <input type="text" name="username" class="form-control" placeholder="Логин" required>
+                </div>
+                <div class="mb-3">
+                    <input type="password" name="password" class="form-control" placeholder="Пароль" required>
+                </div>
+                <button class="btn btn-neon w-100">ВОЙТИ</button>
+            </form>
+            <div class="mt-3">
+                <a href="{% url 'signup' %}" class="text-muted small">Нет аккаунта?</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

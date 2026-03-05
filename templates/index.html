@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="text-center py-5">
+    <h1 class="display-1 fw-bold neon-text mb-3">CYBER ARENA</h1>
+    <p class="lead text-light mb-5 fs-3">Играй без прогулов. Побеждай с умом.</p>
+    <a href="{% url 'map' %}" class="btn btn-neon btn-lg" style="font-size: 1.5rem;">ЗАБРОНИРОВАТЬ МЕСТО</a>
+</div>
+
+<div class="row mt-5">
+    <div class="col-md-4 mb-3">
+        <div class="cyber-card p-4 text-center h-100">
+            <h3 class="text-warning">⚡ МОЩНОЕ ЖЕЛЕЗО</h3>
+            <p class="text-muted">RTX 4060 и мониторы 240Hz для максимального скилла.</p>
+        </div>
+    </div>
+    <div class="col-md-4 mb-3">
+        <div class="cyber-card p-4 text-center h-100">
+            <h3 class="text-info">🎓 SMART BOOKING</h3>
+            <p class="text-muted">Система проверяет твое расписание. Играть можно только в свободное время.</p>
+        </div>
+    </div>
+    <div class="col-md-4 mb-3">
+        <div class="cyber-card p-4 text-center h-100">
+            <h3 class="text-danger">🏆 РЕПУТАЦИЯ</h3>
+            <p class="text-muted">Получай +REP от других игроков и поднимайся в топе.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

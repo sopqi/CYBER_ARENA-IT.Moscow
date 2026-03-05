@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="neon-text">🏆 КИБЕР ТУРНИРЫ</h2>
+    {% if user.is_staff %}
+        <a href="{% url 'tournament_create' %}" class="btn btn-neon-blue fw-bold">+ СОЗДАТЬ ТУРНИР</a>
+    {% endif %}
+</div>
+
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    {% for t in tournaments %}
+    <div class="col">
+        <div class="card cyber-card h-100">
+            {% if t.image %}
+                <img src="{{ t.image.url }}" class="card-img-top" alt="Poster" style="height: 200px; object-fit: cover;">
+            {% endif %}
+            <div class="card-body">
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="badge bg-purple" style="background-color: var(--neon-purple);">{{ t.game }}</span>
+                    <span class="text-warning small">{{ t.date|date:"d M H:i" }}</span>
+                </div>
+                <h4 class="card-title fw-bold">{{ t.title }}</h4>
+                <p class="text-muted small">Участников: {{ t.current_participants_count }} / {{ t.max_participants }}</p>
+
+                <a href="{% url 'tournament_detail' t.id %}" class="btn btn-outline-light w-100 mt-2">ПОДРОБНЕЕ</a>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+        <div class="col-12"><p class="text-muted">Турниров пока нет.</p></div>
+    {% endfor %}
+</div>
+{% endblock %}

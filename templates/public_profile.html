@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="cyber-card p-4 mb-4">
+    <div class="row align-items-center">
+        <div class="col-md-2 text-center">
+            <div style="font-size: 4rem;">👾</div>
+        </div>
+        <div class="col-md-7">
+            <h2 class="neon-text">{{ profile_user.username }}</h2>
+            <div class="badge bg-secondary">{{ profile_user.group_number }}</div>
+        </div>
+        <div class="col-md-3 text-center">
+            <div class="border border-warning rounded p-3 bg-black">
+                <h2 class="mb-0 {% if profile_user.reputation_score >= 0 %}text-success{% else %}text-danger{% endif %}">
+                    {{ profile_user.reputation_score }}
+                </h2>
+                <small class="text-muted">РЕПУТАЦИЯ</small>
+                
+                {% if user.is_authenticated and user != profile_user %}
+                    <form action="{% url 'toggle_rep' profile_user.id %}" method="post" class="mt-2 d-flex justify-content-center gap-2">
+                        {% csrf_token %}
+                        <button name="action" value="plus" class="btn btn-sm btn-outline-success fw-bold">+REP</button>
+                        <button name="action" value="minus" class="btn btn-sm btn-outline-danger fw-bold">-REP</button>
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <h4 class="text-warning mb-3">СТЕНА КОММЕНТАРИЕВ</h4>
+        
+        {% if user.is_authenticated %}
+        <div class="cyber-card p-3 mb-4">
+            <form action="{% url 'add_comment' profile_user.username %}" method="post">
+                {% csrf_token %}
+                <textarea name="text" class="form-control mb-2" rows="2" placeholder="Написать что-нибудь..."></textarea>
+                <div class="text-end">
+                    <button class="btn btn-sm btn-neon">ОТПРАВИТЬ</button>
+                </div>
+            </form>
+        </div>
+        {% endif %}
+
+        {% for comment in comments %}
+        <div class="card bg-dark border-secondary mb-2">
+            <div class="card-body py-2">
+                <div class="d-flex justify-content-between">
+                    <a href="{% url 'profile_view' comment.author.username %}" class="fw-bold text-info text-decoration-none">
+                        {{ comment.author.username }}
+                    </a>
+                    <small class="text-muted">{{ comment.created_at|date:"d.m H:i" }}</small>
+                </div>
+                <p class="mb-0 mt-1 text-light">{{ comment.text }}</p>
+            </div>
+        </div>
+        {% empty %}
+            <p class="text-muted">Комментариев пока нет.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

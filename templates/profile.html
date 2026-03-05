@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="cyber-card p-4 text-center">
+            <div style="font-size: 4rem;">👤</div>
+            <h3 class="neon-text mt-2">{{ user.username }}</h3>
+            {% if user.strikes > 0 %}
+                <div class="alert {% if user.strikes >= 3 %}alert-danger{% else %}alert-warning{% endif %} mt-2 py-2">
+                    <strong>Штрафы за неявку: {{ user.strikes }}/3</strong>
+                    {% if user.strikes >= 3 %}<br>Ваш аккаунт заблокирован для бронирований!{% endif %}
+                </div>
+            {% endif %}
+            <div class="text-warning mb-3">Репутация: {{ user.reputation_score }}</div>
+            <hr class="border-secondary">
+            <p class="small text-muted">{{ user.campus }}</p>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <h4 class="neon-text mb-3">АКТИВНЫЕ БРОНИ</h4>
+        {% if active_bookings %}
+            {% for booking in active_bookings %}
+                <div class="cyber-card p-3 mb-3 d-flex justify-content-between align-items-center" style="border-left: 4px solid var(--neon-green);">
+                    <div>
+                        <h5 class="mb-0">🖥️ PC #{{ booking.computer.number }}</h5>
+                        <small class="text-muted">{{ booking.start_time|date:"d.m H:i" }} - {{ booking.end_time|date:"H:i" }}</small>
+                    </div>
+
+                    <form action="{% url 'cancel_booking' booking.id %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-outline-danger">Отменить</button>
+                    </form>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="alert alert-dark border-secondary">Нет активных игр. <a href="{% url 'map' %}" class="alert-link">Забронировать?</a></div>
+        {% endif %}
+
+        <h4 class="text-muted mt-5 mb-3">История</h4>
+        <table class="table table-dark table-hover cyber-card">
+            <thead>
+                <tr>
+                    <th>ПК</th>
+                    <th>Дата</th>
+                    <th>Время</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for booking in history_bookings %}
+                <tr>
+                    <td>#{{ booking.computer.number }}</td>
+                    <td>{{ booking.start_time|date:"d.m.Y" }}</td>
+                    <td>{{ booking.start_time|date:"H:i" }} - {{ booking.end_time|date:"H:i" }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="3" class="text-center text-muted">Пусто</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
