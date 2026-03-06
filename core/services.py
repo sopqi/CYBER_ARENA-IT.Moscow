@@ -3,7 +3,7 @@ import urllib3
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-API_TOKEN = "ВСТАВИТЬ АПИ ТОКЕН СЮДА, ЕСЛИ ЕГО У ВАС НЕТУ ПИШИТЕ В ТГ, скину - @sopivi"
+API_TOKEN = "mgk_live_j5lukmrzolrpbzlktyssxtk26ffzgjx7iqexo6f3gvbw3nas36ka"
 BASE_URL = "https://api.mgkeit.space/api/v1"
 
 DAYS_MAP = {

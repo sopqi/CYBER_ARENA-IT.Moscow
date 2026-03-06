@@ -89,20 +89,26 @@ def map_view(request):
         current_zone = zones.first()
 
     now = timezone.localtime(timezone.now())
-    user_schedule = []
 
+    user_schedule = []
     if request.user.is_authenticated:
         user_schedule = get_student_schedule(request.user.group_number, now.date())
 
-
     computers_qs = Computer.objects.filter(zone=current_zone).order_by('number')
+
     computers_data = []
     for pc in computers_qs:
         status = pc.get_status()
+
         available_slots = []
         if request.user.is_authenticated:
-            today_start = now.replace(hour=0, minute=0, second=0)
-            pc_bookings = pc.bookings.filter(end_time__gt=now, start_time__gte=today_start,is_cancelled=False, is_no_show=False)
+            today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+            pc_bookings = pc.bookings.filter(
+                end_time__gt=now,
+                start_time__gte=today_start,
+                is_cancelled=False,
+                is_no_show=False
+            )
             available_slots = generate_available_slots(user_schedule, pc_bookings)
 
         computers_data.append({
@@ -124,9 +130,8 @@ def book_computer(request, pc_id):
     user = request.user
 
     if request.method == 'POST':
-        #проверка на штрафы
         if user.strikes >= 3:
-            messages.error(request, "⛔ ВЫ ЗАБЛОКИРОВАНЫ за частые неявки. Бронирование недоступно. Обратитесь к администратору.")
+            messages.error(request, "⛔ Доступ заблокирован! У вас 3 или более штрафов.")
             return redirect('profile')
 
         start_str = request.POST.get('start_time')
@@ -135,39 +140,38 @@ def book_computer(request, pc_id):
         try:
             start_dt = timezone.make_aware(datetime.datetime.strptime(start_str, "%Y-%m-%dT%H:%M"))
             end_dt = timezone.make_aware(datetime.datetime.strptime(end_str, "%Y-%m-%dT%H:%M"))
-        except ValueError:
-            messages.error(request, "Ошибка формата времени")
+        except (ValueError, TypeError):
+            messages.error(request, "Ошибка формата времени.")
             return redirect('map')
 
         now = timezone.now()
 
-        if start_dt < now:
-            messages.error(request, "Нельзя бронировать в прошлом!")
-            return redirect('map')
-
         try:
             with transaction.atomic():
                 pc = get_object_or_404(Computer.objects.select_for_update(), id=pc_id)
+                if Booking.objects.filter(user=user, end_time__gt=now, is_cancelled=False, is_no_show=False).exists():
+                    messages.warning(request, "У вас уже есть активная бронь!")
+                    return redirect('profile')
 
-                if Booking.objects.filter(user=user,  end_time__gt=now, is_cancelled=False, is_no_show=False).exists():
-                    messages.error(request, "У вас уже есть активная бронь! Доиграйте сначала.")
+                if Booking.objects.filter(computer=pc, start_time__lt=end_dt, end_time__gt=start_dt, is_cancelled=False,
+                                          is_no_show=False).exists():
+                    messages.error(request, "Это время уже успели занять. Выберите другой слот.")
                     return redirect('map')
-                if Booking.objects.filter( computer=pc, start_time__lt=end_dt, end_time__gt=start_dt, is_cancelled=False, is_no_show=False).exists():
-                    messages.error(request, "Кто-то другой только что успел забронировать это место!")
-                    return redirect('map')
-
-
-                Booking.objects.create(user=user, computer=pc, start_time=start_dt, end_time=end_dt)
+                Booking.objects.create(
+                    user=user,
+                    computer=pc,
+                    start_time=start_dt,
+                    end_time=end_dt
+                )
 
         except Exception as e:
-            messages.error(request, f"Ошибка сервера: {e}")
+            messages.error(request, f"Критическая ошибка базы: {e}")
             return redirect('map')
 
-        messages.success(request, f"Место #{pc.number} успешно забронировано!")
+        messages.success(request, f"Успешно забронировано! Ждем вас в {start_dt.strftime('%H:%M')}")
         return redirect('profile')
 
     return redirect('map')
-
 
 
 @login_required

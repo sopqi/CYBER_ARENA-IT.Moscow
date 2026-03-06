@@ -1,28 +1,26 @@
 {% extends 'base.html' %}
+
 {% block content %}
+<div class="text-center mb-5 reveal">
+    <h2 class="orbitron mb-2" style="text-shadow: 0 0 20px var(--cyber-blue); color: #fff;">ТАКТИЧЕСКАЯ КАРТА</h2>
 
-<div class="text-center mb-4">
-    <h2 class="neon-text">ВЫБОР ИГРОВОГО МЕСТА</h2>
+    {% if user.is_authenticated %}
+        <div class="badge glass-panel px-3 py-2 mb-3" style="border-color: {% if user.strikes >= 3 %}var(--cyber-red){% else %}var(--cyber-purple){% endif %};">
+            ШТРАФЫ СИСТЕМЫ: <span style="color: {% if user.strikes >= 3 %}var(--cyber-red){% else %}#fff{% endif %}; font-weight: 800; font-size: 1.2rem;">{{ user.strikes }}/3</span>
+        </div>
+    {% endif %}
 
-    <div class="d-flex justify-content-center gap-2 mt-4">
+    <div class="d-flex justify-content-center gap-3 mt-3">
         {% for zone in zones %}
-            <a href="?zone={{ zone.slug }}"
-               class="btn {% if zone == current_zone %}btn-neon{% else %}btn-outline-secondary{% endif %} btn-sm">
-               {{ zone.name|upper }}
+            <a href="?zone={{ zone.slug }}" class="btn-premium text-decoration-none px-4 py-2 {% if zone != current_zone %}opacity-50{% endif %}" style="font-size: 0.8rem;">
+                {{ zone.name|upper }}
             </a>
         {% endfor %}
     </div>
-
-    <div class="d-flex justify-content-center gap-4 text-muted small mt-3">
-        <div><span style="color: var(--neon-green)">■</span> СВОБОДНО</div>
-        <div><span style="color: var(--neon-red)">■</span> ЗАНЯТО</div>
-    </div>
 </div>
 
-<div class="map-wrapper">
-    <div style="position: absolute; bottom: 10px; left: 45%; color: #555; border: 1px solid #555; padding: 2px 10px;">ВХОД</div>
-
-    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 5rem; opacity: 0.05; font-weight: 900; pointer-events: none; text-transform: uppercase; white-space: nowrap;">
+<div class="map-wrapper reveal">
+    <div class="orbitron" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 6vw; opacity: 0.03; font-weight: 900; pointer-events: none; white-space: nowrap; color: #fff;">
         {{ current_zone.name }}
     </div>
 
@@ -33,85 +31,74 @@
              data-bs-target="#modal-{{ item.obj.id }}">
              {{ item.obj.number }}
         </div>
+    {% endfor %}
+</div>
+{% endblock %}
 
-        <div class="modal fade" id="modal-{{ item.obj.id }}" tabindex="-1">
-            <div class="modal-dialog modal-dialog-centered">
+
+<!-- ВСПЛЫВАЮЩИЕ ОКНА (Поверх всего сайта) -->
+{% block modals %}
+    {% for item in computers %}
+        <div class="modal fade" id="modal-{{ item.obj.id }}" tabindex="-1" aria-hidden="true" style="backdrop-filter: blur(10px);">
+            <!-- Добавлен z-index на всякий случай -->
+            <div class="modal-dialog modal-dialog-centered" style="z-index: 1055;">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">PC #{{ item.obj.number }} <span class="badge bg-secondary">{{ item.obj.get_category_display }}</span></h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                        <h4 class="modal-title orbitron" style="color: var(--cyber-blue);">ТЕРМИНАЛ #{{ item.obj.number }}</h4>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <p class="text-muted mb-2">Железо: <span class="text-white">{{ item.obj.specs }}</span></p>
+                        <div class="glass-panel p-3 mb-4">
+                            <span class="text-muted small d-block mb-1">ХАРАКТЕРИСТИКИ:</span>
+                            <span class="orbitron" style="color: var(--text-main); font-size: 1.1rem;">{{ item.obj.specs }}</span>
+                        </div>
 
                         {% if item.is_busy %}
-                            <div class="alert alert-danger border-danger">
-                                ⛔ <strong>СЕЙЧАС ЗАНЯТО</strong><br>
-                                Освободится: {{ item.free_at|date:"H:i" }}
+                            <div class="glass-panel p-3 border-danger text-center mb-0" style="background: rgba(255,0,60,0.1);">
+                                <h5 style="color: var(--cyber-red); margin:0;">СИСТЕМА ЗАНЯТА</h5>
+                                <span class="text-muted small">ОСВОБОДИТСЯ В: {{ item.free_at|date:"H:i" }}</span>
                             </div>
                         {% else %}
-                            <div class="alert alert-success border-success py-2 mb-3">✅ СЕЙЧАС СВОБОДНО</div>
+                            <div class="glass-panel p-3 text-center mb-4" style="border-color: var(--cyber-green); background: rgba(0,255,102,0.05);">
+                                <h5 style="color: var(--cyber-green); margin:0; letter-spacing: 4px;">ДОСТУПНО</h5>
+                            </div>
                         {% endif %}
-
-                        <hr style="border-color: #333;">
 
                         {% if user.is_authenticated %}
                             {% if user.strikes >= 3 %}
-                                <div class="alert alert-danger text-center border-danger mt-3">
-                                    <h5 class="mb-1">⛔ ВАШ АККАУНТ ЗАБЛОКИРОВАН</h5>
-                                    <p class="small mb-0">Вы получили 3 или более штрафов за неявку.<br>Обратитесь к администратору.</p>
+                                <div class="glass-panel p-4 text-center mt-4" style="border-color: var(--cyber-red); background: rgba(255,0,0,0.1);">
+                                    <h4 style="color: var(--cyber-red);">ДОСТУП ЗАПРЕЩЕН</h4>
+                                    <p class="text-muted small mb-0">ПРЕВЫШЕН ЛИМИТ ШТРАФОВ. ОБРАТИТЕСЬ К АДМИНУ.</p>
                                 </div>
                             {% else %}
-                                <h6 class="text-warning mb-3">Доступные слоты на сегодня:</h6>
-
+                                <h6 class="orbitron text-muted mb-3 mt-4" style="font-size: 0.8rem;">ВЫБЕРИТЕ СЛОТ:</h6>
                                 {% if item.slots %}
-                                    <div class="d-flex flex-wrap gap-2">
+                                    <div class="row g-2">
                                         {% for slot in item.slots %}
-                                            <form action="{% url 'book_computer' item.obj.id %}" method="post" class="booking-form">
-                                                {% csrf_token %}
-                                                <input type="hidden" name="start_time" value="{{ slot.start_value }}">
-                                                <input type="hidden" name="end_time" value="{{ slot.end_value }}">
+                                            <div class="col-6">
+                                                <form action="{% url 'book_computer' item.obj.id %}" method="post" class="booking-form h-100">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="start_time" value="{{ slot.start_value }}">
+                                                    <input type="hidden" name="end_time" value="{{ slot.end_value }}">
 
-                                                <button type="submit" class="btn btn-outline-success btn-sm submit-btn" style="border-radius: 8px;">
-                                                    {{ slot.display }}
-                                                </button>
-                                            </form>
+                                                    <button type="submit" class="slot-btn {% if 'ПЕРЕМЕНА' in slot.info %}break{% endif %} h-100 text-start">
+                                                        <div class="fw-bold fs-6">{{ slot.display }}</div>
+                                                        <div style="font-size: 0.65rem; opacity: 0.6; font-family: 'Orbitron', sans-serif;">{{ slot.info }}</div>
+                                                    </button>
+                                                </form>
+                                            </div>
                                         {% endfor %}
                                     </div>
-                                    <div class="mt-3 small text-muted">
-                                        * Слоты сгенерированы с учетом ваших пар и других бронирований.
-                                    </div>
                                 {% else %}
-                                    <div class="alert alert-secondary border-secondary">
-                                        Нет свободных окон для бронирования сегодня (либо у вас пары, либо ПК занят).
-                                    </div>
+                                    <div class="p-3 text-center text-muted mt-2" style="border: 1px dashed #333; border-radius: 8px;">СВОБОДНЫЕ СЛОТЫ НЕ НАЙДЕНЫ</div>
                                 {% endif %}
                             {% endif %}
-
                         {% else %}
-                            <p class="text-center mb-0">
-                                <a href="{% url 'login' %}" class="text-info">Войдите</a>, чтобы увидеть свободное время.
-                            </p>
+                            <div class="text-center mt-4"><a href="{% url 'login' %}" class="btn-premium d-inline-block text-decoration-none">АВТОРИЗУЙТЕСЬ</a></div>
                         {% endif %}
                     </div>
                 </div>
             </div>
         </div>
     {% endfor %}
-</div>
-
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const forms = document.querySelectorAll('.booking-form');
-        forms.forEach(form => {
-            form.addEventListener('submit', function() {
-                const btn = this.querySelector('.submit-btn');
-                btn.disabled = true;
-                btn.style.opacity = '0.5';
-                btn.innerHTML = 'ОБРАБОТКА... ⏳';
-            });
-        });
-    });
-</script>
 {% endblock %}

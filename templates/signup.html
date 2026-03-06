@@ -1,108 +1,86 @@
 {% extends 'base.html' %}
 {% block content %}
-
-
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-<style>
-    .select2-container--default .select2-selection--single {
-        background-color: #0a0a0a; border: 1px solid #333; height: 38px;
-    }
-    .select2-container--default .select2-selection--single .select2-selection__rendered {
-        color: white; line-height: 38px;
-    }
-    .select2-dropdown { background-color: #111; border: 1px solid var(--neon-purple); }
-    .select2-results__option { color: white; }
-    .select2-results__option--highlighted[aria-selected] { background-color: var(--neon-purple); }
-    .select2-search__field { background-color: #222; color: white; border: 1px solid #444 !important; }
-</style>
-
-<div class="row justify-content-center mt-5">
+<div class="row justify-content-center reveal">
     <div class="col-md-6 col-lg-5">
-        <div class="cyber-card p-4 p-md-5">
-            <h2 class="text-center neon-text mb-4">РЕГИСТРАЦИЯ</h2>
+        <div class="glass-panel p-5" style="border-top: 2px solid var(--cyber-purple);">
+            <h2 class="text-center orbitron mb-4" style="color: #fff; text-shadow: 0 0 15px var(--cyber-purple);">РЕГИСТРАЦИЯ ИГРОКА</h2>
             <form method="post" id="signupForm">
                 {% csrf_token %}
-
                 {% for field in form %}
-                <div class="mb-3">
-                    <label class="form-label text-secondary small">{{ field.label }}</label>
-                    {{ field }}
+                <div class="mb-4">
+                    <label class="form-label text-muted orbitron" style="font-size: 0.7rem;">{{ field.label }}</label>
+                    <div class="position-relative">
+                        {{ field }}
+                    </div>
                     {% if field.errors %}
-                        <div class="text-danger small mt-1">{{ field.errors.0 }}</div>
+                        <div class="text-danger mt-1" style="font-size: 0.8rem; font-family: 'Orbitron', sans-serif;">{{ field.errors.0 }}</div>
                     {% endif %}
                 </div>
                 {% endfor %}
-
-                <button type="submit" class="btn btn-neon w-100 mt-3">СОЗДАТЬ АККАУНТ</button>
+                <button type="submit" class="btn-premium w-100 mt-2 py-3 border-0">ПОДТВЕРДИТЬ</button>
             </form>
-            <div class="text-center mt-3">
-                <a href="{% url 'login' %}" class="text-decoration-none text-muted small">Уже есть аккаунт? Войти</a>
+            <div class="text-center mt-4">
+                <a href="{% url 'login' %}" class="text-muted text-decoration-none" style="font-size: 0.8rem; font-family: 'Orbitron', sans-serif; transition: color 0.3s;" onmouseover="this.style.color='var(--cyber-blue)'" onmouseout="this.style.color='var(--text-muted)'">УЖЕ В СИСТЕМЕ? АВТОРИЗОВАТЬСЯ</a>
             </div>
         </div>
     </div>
 </div>
 
-
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-
 <script>
-    $(document).ready(function() {
-        console.log("🚀 Скрипт регистрации запущен!");
-
-        $('input, select').addClass('form-control bg-dark text-white border-secondary');
-
-        const campusSelect = $('select[name="campus"]');
-        const groupSelect = $('select[name="group_number"]');
-
+    document.addEventListener('DOMContentLoaded', () => {
         try {
-            groupSelect.select2({
-                placeholder: "Сначала выберите корпус...",
-                width: '100%',
-                language: { noResults: () => "Группы не найдены" }
-            });
-        } catch (e) {
-            console.error("⚠️ Select2 не загрузился", e);
-        }
-
-        campusSelect.on('change', function() {
-            const campus = $(this).val();
-            console.log("👉 Выбран корпус:", campus);
-
-            if (!campus) return;
-
-            groupSelect.empty().append(new Option("Загрузка...", "", false, false));
-            try { groupSelect.trigger('change'); } catch(e) {}
-            groupSelect.prop('disabled', true);
-
-            fetch(`/api/get-groups/?campus=${campus}`)
-                .then(response => response.json())
-                .then(data => {
-                    console.log("✅ Группы получены:", data);
-                    groupSelect.empty();
-
-                    if (data.groups && data.groups.length > 0) {
-                        groupSelect.append(new Option("Начните вводить вашу группу...", "", false, false));
-                        data.groups.forEach(group => {
-                            groupSelect.append(new Option(group, group, false, false));
-                        });
-                        groupSelect.prop('disabled', false);
-                    } else {
-                        groupSelect.append(new Option("Группы не найдены", "", false, false));
-                    }
-
-                    try { groupSelect.trigger('change'); } catch(e) {}
-                })
-                .catch(err => {
-                    console.error("❌ Ошибка сервера:", err);
-                    groupSelect.empty().append(new Option("Ошибка сервера", "", false, false));
-                    try { groupSelect.trigger('change'); } catch(e) {}
+            // Стилизация полей Django
+            const inputs = document.querySelectorAll('input, select');
+            inputs.forEach(el => {
+                el.style.backgroundColor = 'rgba(0,0,0,0.5)';
+                el.style.border = '1px solid #333';
+                el.style.color = '#fff';
+                el.style.padding = '12px';
+                el.style.borderRadius = '8px';
+                el.style.transition = 'border-color 0.3s, box-shadow 0.3s';
+                el.addEventListener('focus', () => {
+                    el.style.borderColor = 'var(--cyber-purple)';
+                    el.style.boxShadow = '0 0 15px rgba(176,38,255,0.2)';
+                    el.style.outline = 'none';
                 });
-        });
+                el.addEventListener('blur', () => {
+                    el.style.borderColor = '#333';
+                    el.style.boxShadow = 'none';
+                });
+            });
 
-        if (campusSelect.val()) {
-            campusSelect.trigger('change');
-        }
+            // Настройка поиска групп (Select2)
+            if(typeof jQuery !== 'undefined' && $.fn.select2) {
+                const groupSelect = $('select[name="group_number"]');
+                groupSelect.select2({
+                    width: '100%',
+                    placeholder: "Ожидание выбора корпуса...",
+                    dropdownCssClass: 'glass-panel',
+                    selectionCssClass: 'glass-panel'
+                });
+
+                // AJAX запрос в API
+                $('select[name="campus"]').on('change', function() {
+                    const c = $(this).val();
+                    if(!c) return;
+                    groupSelect.empty().prop('disabled', true);
+                    fetch(`/api/get-groups/?campus=${c}`)
+                        .then(r => r.json())
+                        .then(d => {
+                            groupSelect.empty();
+                            if(d.groups && d.groups.length) {
+                                groupSelect.append(new Option("Введите название...", "", false, false));
+                                d.groups.forEach(g => groupSelect.append(new Option(g, g)));
+                                groupSelect.prop('disabled', false);
+                            } else {
+                                groupSelect.append(new Option("Группы не найдены", "", false, false));
+                            }
+                            groupSelect.trigger('change');
+                        });
+                });
+                if($('select[name="campus"]').val()) $('select[name="campus"]').trigger('change');
+            }
+        } catch(e) {}
     });
 </script>
 {% endblock %}

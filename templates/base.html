@@ -4,72 +4,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CYBER ARENA</title>
+    <title>CYBER ARENA | IT-Moscow</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=5">
 </head>
 <body>
+    <canvas id="canvas-bg"></canvas>
 
-<nav class="navbar navbar-expand-lg navbar-dark sticky-top">
-    <div class="container">
+    <nav class="navbar navbar-expand-lg sticky-top" style="z-index: 1030;">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="{% url 'home' %}">
+                <img src="{% static 'img/logo.png' %}"
+                     alt=""
+                     draggable="false"
+                     oncontextmenu="return false;"
+                     onerror="this.style.display='none'; document.getElementById('fallback-logo').style.display='block';">
+                <span id="fallback-logo" style="display: none;" class="orbitron">CYBER//ARENA</span>
+            </a>
 
-        <a class="navbar-brand" href="{% url 'home' %}">
-            <img src="{% static 'img/logo.png' %}"
-                 alt="Logo"
-                 style="height: 45px; pointer-events: none; user-select: none;"
-                 draggable="false"
-                 oncontextmenu="return false;">
-        </a>
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
 
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+            <div class="collapse navbar-collapse" id="nav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item"><a class="nav-link" href="{% url 'map' %}">КАРТА ЗАЛА</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'tournament_list' %}">ТУРНИРЫ</a></li>
 
-        <div class="collapse navbar-collapse" id="nav">
-            <ul class="navbar-nav ms-auto align-items-center">
-                <li class="nav-item"><a class="nav-link" href="{% url 'map' %}">КАРТА ЗАЛА</a></li>
-                <li class="nav-item"><a class="nav-link text-info" href="{% url 'tournament_list' %}">🏆 ТУРНИРЫ</a></li>
-                {% if user.is_authenticated %}
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle text-warning fw-bold" href="#" role="button" data-bs-toggle="dropdown">
-                            {{ user.username }}
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-dark">
-                            <li><a class="dropdown-item" href="{% url 'profile' %}">Личный кабинет</a></li>
-                            <li><a class="dropdown-item" href="{% url 'profile_view' user.username %}">Публичный профиль</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <form action="{% url 'logout' %}" method="post">
-                                    {% csrf_token %}
-                                    <button class="dropdown-item text-danger">Выход</button>
-                                </form>
-                            </li>
-                        </ul>
-                    </li>
-                {% else %}
-                    <li class="nav-item"><a class="btn btn-sm btn-outline-light ms-3" href="{% url 'login' %}">ВХОД</a></li>
-                    <li class="nav-item"><a class="btn btn-sm btn-neon ms-2" href="{% url 'signup' %}">РЕГИСТРАЦИЯ</a></li>
-                {% endif %}
-            </ul>
-        </div>
-    </div>
-</nav>
-
-<div class="container mt-4 mb-5">
-    {% if messages %}
-        {% for message in messages %}
-            <div class="alert alert-{{ message.tags }} alert-dismissible fade show cyber-card" role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    {% if user.is_authenticated %}
+                        <li class="nav-item dropdown ms-3">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" style="color: var(--cyber-blue) !important;">
+                                [ {{ user.username }} ]
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-dark glass-panel border-0 mt-2">
+                                <li><a class="dropdown-item" href="{% url 'profile' %}">ЛИЧНЫЙ КАБИНЕТ</a></li>
+                                <li><a class="dropdown-item" href="{% url 'profile_view' user.username %}">БАЗА ИГРОКА</a></li>
+                                <li><hr class="dropdown-divider border-secondary"></li>
+                                <li>
+                                    <form action="{% url 'logout' %}" method="post">
+                                        {% csrf_token %}
+                                        <button class="dropdown-item text-danger">ОТКЛЮЧЕНИЕ</button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item ms-3"><a class="nav-link" href="{% url 'login' %}">АВТОРИЗАЦИЯ</a></li>
+                        <li class="nav-item"><a class="btn-premium ms-2 text-decoration-none d-inline-block" href="{% url 'signup' %}">РЕГИСТРАЦИЯ</a></li>
+                    {% endif %}
+                </ul>
             </div>
-        {% endfor %}
-    {% endif %}
+        </div>
+    </nav>
 
-    {% block content %}{% endblock %}
-</div>
+    <div class="container mt-5 mb-5" style="position: relative; z-index: 1;">
+        {% if messages %}
+            <div class="position-fixed top-0 end-0 p-3" style="z-index: 1050; margin-top: 70px;">
+            {% for message in messages %}
+                <div class="alert glass-panel border-{% if message.tags == 'error' %}danger{% else %}info{% endif %} text-white alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+            </div>
+        {% endif %}
 
+        {% block content %}{% endblock %}
+    </div>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    {% block modals %}{% endblock %}
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="{% static 'js/main.js' %}?v=4"></script>
 </body>
 </html>

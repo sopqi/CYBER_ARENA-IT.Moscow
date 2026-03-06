@@ -1,28 +1,32 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="text-center py-5">
-    <h1 class="display-1 fw-bold neon-text mb-3">CYBER ARENA</h1>
-    <p class="lead text-light mb-5 fs-3">Играй без прогулов. Побеждай с умом.</p>
-    <a href="{% url 'map' %}" class="btn btn-neon btn-lg" style="font-size: 1.5rem;">ЗАБРОНИРОВАТЬ МЕСТО</a>
+<div class="d-flex align-items-center justify-content-center flex-column text-center reveal" style="min-height: 75vh;">
+    <div class="glitch-wrapper mb-4">
+        <h1 class="glitch-text" data-text="CYBER ARENA">CYBER ARENA</h1>
+    </div>
+    <p class="lead mb-5" style="max-width: 600px; color: var(--text-muted); font-size: 1.2rem;">
+        УМНЫЙ ПРОТОКОЛ БРОНИРОВАНИЯ АКТИВИРОВАН. СИНХРОНИЗАЦИЯ С БАЗОЙ РАСПИСАНИЯ КОЛЛЕДЖА УСТАНОВЛЕНА.
+    </p>
+    <a href="{% url 'map' %}" class="btn-premium fs-5 px-5 py-3 text-decoration-none">ВОЙТИ В СЕТЬ</a>
 </div>
 
-<div class="row mt-5">
-    <div class="col-md-4 mb-3">
-        <div class="cyber-card p-4 text-center h-100">
-            <h3 class="text-warning">⚡ МОЩНОЕ ЖЕЛЕЗО</h3>
-            <p class="text-muted">RTX 4060 и мониторы 240Hz для максимального скилла.</p>
+<div class="row g-4 reveal">
+    <div class="col-md-4">
+        <div class="glass-panel p-5 text-center h-100">
+            <h3 class="orbitron mb-3" style="color: var(--cyber-purple);">01 // ЖЕЛЕЗО</h3>
+            <p class="text-muted">Нейронные связи RTX 4090. Оптические интерфейсы 240Hz. Нулевая задержка в киберпространстве.</p>
         </div>
     </div>
-    <div class="col-md-4 mb-3">
-        <div class="cyber-card p-4 text-center h-100">
-            <h3 class="text-info">🎓 SMART BOOKING</h3>
-            <p class="text-muted">Система проверяет твое расписание. Играть можно только в свободное время.</p>
+    <div class="col-md-4">
+        <div class="glass-panel p-5 text-center h-100" style="border-color: rgba(0, 240, 255, 0.3);">
+            <h3 class="orbitron mb-3" style="color: var(--cyber-blue);">02 // СМАРТ СИНХРОНИЗАЦИЯ</h3>
+            <p class="text-muted">Интеграция с API колледжа. Блокировка во время пар. Играй только в свое свободное время.</p>
         </div>
     </div>
-    <div class="col-md-4 mb-3">
-        <div class="cyber-card p-4 text-center h-100">
-            <h3 class="text-danger">🏆 РЕПУТАЦИЯ</h3>
-            <p class="text-muted">Получай +REP от других игроков и поднимайся в топе.</p>
+    <div class="col-md-4">
+        <div class="glass-panel p-5 text-center h-100">
+            <h3 class="orbitron mb-3" style="color: var(--cyber-green);">03 // РЕПУТАЦИЯ</h3>
+            <p class="text-muted">Система социального рейтинга. Зарабатывай +REP. Избегай системных штрафов и блокировок.</p>
         </div>
     </div>
 </div>
